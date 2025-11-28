@@ -1,5 +1,6 @@
 #include "ProcessCommandLine.hpp"
 #include "TransformChar.hpp"
+#include "runCaesarCipher.hpp"
 
 #include <cctype>
 #include <fstream>
@@ -46,6 +47,7 @@ int main(int argc, char* argv[])
             << "                   Stdout will be used if not supplied\n\n"
             << "  --encrypt        Encrypt the input text\n\n"
             << "  --decrypt        Decrypt the input text\n\n"
+            << "  --key KEY        Specify the cipher key to use\n\n"
             << std::endl;
         // Help requires no further action, so return from main
         // with 0 used to indicate success
@@ -86,6 +88,8 @@ int main(int argc, char* argv[])
     }
     // Print out the transliterated text
 
+    std::string outputText = runCaesarCipher(inputText, std::stoi(cipherKey), encrypt);
+
     // Warn that output file option not yet implemented
     if (!outputFile.empty()) {
         std::string name{outputFile};
@@ -96,10 +100,12 @@ int main(int argc, char* argv[])
                       << "' for writing\n";
             return 1;
         }
-        out_file << inputText << "\n";
+        out_file << outputText << "\n";
     } else {
-        std::cout << inputText << std::endl;
+        std::cout << outputText << std::endl;
     }
+
+
 
     // No requirement to return from main, but we do so for clarity
     // and for consistency with other functions

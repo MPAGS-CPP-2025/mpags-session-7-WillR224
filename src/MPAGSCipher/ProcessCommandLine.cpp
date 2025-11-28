@@ -11,7 +11,6 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
 {
     // Status flag to indicate whether or not the parsing was successful
     bool processStatus{true};
-
     // Process the arguments - ignore zeroth element, as we know this to be
     // the program name and don't need to worry about it
     const std::size_t nCmdLineArgs{cmdLineArgs.size()};
