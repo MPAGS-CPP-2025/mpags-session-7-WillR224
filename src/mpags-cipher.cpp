@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 int main(int argc, char* argv[])
 {
@@ -61,24 +62,41 @@ int main(int argc, char* argv[])
     // Read in user input from stdin/file
     // Warn that input file option not yet implemented
     if (!inputFile.empty()) {
-        std::cerr << "[warning] input from file ('" << inputFile
-                  << "') not implemented yet, using stdin\n";
+        std::string name {inputFile};
+        std::ifstream in_file {name};
+        bool ok_to_read = in_file.good();
+        if(!ok_to_read){
+            std::cerr << "[error] unable to open file '" << inputFile << "' for reading\n";
+            return 1;
+        }
+        while(in_file >> inputChar){
+            inputText += transformChar(inputChar);
+        } 
     }
-
-    // loop over each character from user input
-    while (std::cin >> inputChar) {
-        inputText += transformChar(inputChar);
+    else{
+        // loop over each character from user input
+        while (std::cin >> inputChar) {
+            inputText += transformChar(inputChar);
+        }
     }
-
     // Print out the transliterated text
 
     // Warn that output file option not yet implemented
     if (!outputFile.empty()) {
-        std::cerr << "[warning] output to file ('" << outputFile
-                  << "') not implemented yet, using stdout\n";
+        std::string name {outputFile};
+        std::ofstream out_file {name};
+        bool ok_to_write = out_file.good();
+        if(!ok_to_write){
+            std::cerr << "[error] unable to open file '" << outputFile << "' for writing\n";
+            return 1;
+        }
+        out_file << inputText << "\n";
+    }
+    else{
+        std::cout << inputText << std::endl;
     }
 
-    std::cout << inputText << std::endl;
+    
 
     // No requirement to return from main, but we do so for clarity
     // and for consistency with other functions
