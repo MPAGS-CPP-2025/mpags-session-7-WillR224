@@ -6,11 +6,11 @@
 
 bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
                         bool& helpRequested, bool& versionRequested,
-                        std::string& inputFile, std::string& outputFile)
+                        std::string& inputFile, std::string& outputFile,
+                        bool& encrypt, std::string& cipherKey)
 {
     // Status flag to indicate whether or not the parsing was successful
     bool processStatus{true};
-
     // Process the arguments - ignore zeroth element, as we know this to be
     // the program name and don't need to worry about it
     const std::size_t nCmdLineArgs{cmdLineArgs.size()};
@@ -51,7 +51,22 @@ bool processCommandLine(const std::vector<std::string>& cmdLineArgs,
                 outputFile = cmdLineArgs[i + 1];
                 ++i;
             }
-        } else {
+        } else if (cmdLineArgs[i] == "--encrypt") {
+            encrypt = true;
+        } else if (cmdLineArgs[i] == "--decrypt") {
+            encrypt = false;
+        } else if (cmdLineArgs[i] == "--key") {
+            if (i == nCmdLineArgs - 1) {
+                std::cerr << "[error] --key requires a key argument" << std::endl;
+                processStatus = false;
+                break;
+            } else {
+                // Got key, so assign value and advance past it
+                cipherKey = cmdLineArgs[i + 1];
+                ++i;
+            }
+        }
+        else {
             // Have encoutered an unknown flag, output an error message,
             // set the flag to indicate the error and terminate the loop
             std::cerr << "[error] unknown argument '" << cmdLineArgs[i]
