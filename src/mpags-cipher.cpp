@@ -2,10 +2,10 @@
 #include "TransformChar.hpp"
 
 #include <cctype>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <fstream>
 
 int main(int argc, char* argv[])
 {
@@ -15,12 +15,15 @@ int main(int argc, char* argv[])
     // Options that might be set by the command-line arguments
     bool helpRequested{false};
     bool versionRequested{false};
+    bool encrypt{true};
     std::string inputFile{""};
     std::string outputFile{""};
+    std::string cipherKey{""};
 
     // Process command line arguments
-    const bool cmdLineStatus{processCommandLine(
-        cmdLineArgs, helpRequested, versionRequested, inputFile, outputFile)};
+    const bool cmdLineStatus{
+        processCommandLine(cmdLineArgs, helpRequested, versionRequested,
+                           inputFile, outputFile, encrypt, cipherKey)};
 
     // Any failure in the argument processing means we can't continue
     // Use a non-zero return value to indicate failure
@@ -32,7 +35,7 @@ int main(int argc, char* argv[])
     if (helpRequested) {
         // Line splitting for readability
         std::cout
-            << "Usage: mpags-cipher [-h/--help] [--version] [-i <file>] [-o <file>]\n\n"
+            << "Usage: mpags-cipher [-h/--help] [--version] [-i <file>] [-o <file>] [--encrypt|--decrypt]\n\n"
             << "Encrypts/Decrypts input alphanumeric text using classical ciphers\n\n"
             << "Available options:\n\n"
             << "  -h|--help        Print this help message and exit\n\n"
@@ -41,6 +44,8 @@ int main(int argc, char* argv[])
             << "                   Stdin will be used if not supplied\n\n"
             << "  -o FILE          Write processed text to FILE\n"
             << "                   Stdout will be used if not supplied\n\n"
+            << "  --encrypt        Encrypt the input text\n\n"
+            << "  --decrypt        Decrypt the input text\n\n"
             << std::endl;
         // Help requires no further action, so return from main
         // with 0 used to indicate success
@@ -62,18 +67,18 @@ int main(int argc, char* argv[])
     // Read in user input from stdin/file
     // Warn that input file option not yet implemented
     if (!inputFile.empty()) {
-        std::string name {inputFile};
-        std::ifstream in_file {name};
+        std::string name{inputFile};
+        std::ifstream in_file{name};
         bool ok_to_read = in_file.good();
-        if(!ok_to_read){
-            std::cerr << "[error] unable to open file '" << inputFile << "' for reading\n";
+        if (!ok_to_read) {
+            std::cerr << "[error] unable to open file '" << inputFile
+                      << "' for reading\n";
             return 1;
         }
-        while(in_file >> inputChar){
+        while (in_file >> inputChar) {
             inputText += transformChar(inputChar);
-        } 
-    }
-    else{
+        }
+    } else {
         // loop over each character from user input
         while (std::cin >> inputChar) {
             inputText += transformChar(inputChar);
@@ -83,20 +88,18 @@ int main(int argc, char* argv[])
 
     // Warn that output file option not yet implemented
     if (!outputFile.empty()) {
-        std::string name {outputFile};
-        std::ofstream out_file {name};
+        std::string name{outputFile};
+        std::ofstream out_file{name};
         bool ok_to_write = out_file.good();
-        if(!ok_to_write){
-            std::cerr << "[error] unable to open file '" << outputFile << "' for writing\n";
+        if (!ok_to_write) {
+            std::cerr << "[error] unable to open file '" << outputFile
+                      << "' for writing\n";
             return 1;
         }
         out_file << inputText << "\n";
-    }
-    else{
+    } else {
         std::cout << inputText << std::endl;
     }
-
-    
 
     // No requirement to return from main, but we do so for clarity
     // and for consistency with other functions
